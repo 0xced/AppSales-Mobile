@@ -1,7 +1,7 @@
 /*
  RootViewController.m
  AppSalesMobile
- 
+
  * Copyright (c) 2008, omz:software
  * All rights reserved.
  *
@@ -53,16 +53,16 @@
 - (void)loadView
 {
 	[super loadView];
-	
+
 	self.activityIndicator = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite] autorelease];
 	UIBarButtonItem *progressItem = [[[UIBarButtonItem alloc] initWithCustomView:activityIndicator] autorelease];
-	
+
 	self.settingsController = [[[SettingsViewController alloc] initWithNibName:@"SettingsViewController" bundle:nil] autorelease];
 	settingsController.hidesBottomBarWhenPushed = YES;
-	
+
 	UIBarButtonItem *refreshItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(downloadReports)] autorelease];
 	UIBarButtonItem *flexSpaceItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease];
-	
+
 	self.statusLabel = [[[UILabel alloc] initWithFrame:CGRectMake(0, 0, 150, 32)] autorelease];
 	statusLabel.textColor = [UIColor whiteColor];
 	statusLabel.shadowColor = [UIColor darkGrayColor];
@@ -74,28 +74,28 @@
 	statusLabel.textAlignment = UITextAlignmentCenter;
 	statusLabel.text = @"";
 	UIBarButtonItem *statusItem = [[[UIBarButtonItem alloc] initWithCustomView:statusLabel] autorelease];
-	
+
 	self.toolbarItems = [NSArray arrayWithObjects:refreshItem, flexSpaceItem, statusItem, flexSpaceItem, progressItem, nil];
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProgress) name:ReportManagerUpdatedDownloadProgressNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshDailyTrend) name:ReportManagerDownloadedDailyReportsNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshWeeklyTrend) name:ReportManagerDownloadedWeeklyReportsNotification object:nil];
 }
 
 
-- (void)viewDidLoad 
+- (void)viewDidLoad
 {
 	[super viewDidLoad];
 	self.navigationItem.title = @"AppSales";
-	
+
 	UIButton *infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
 	[infoButton addTarget:self action:@selector(showInfo) forControlEvents:UIControlEventTouchUpInside];
 	UIBarButtonItem *infoButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:infoButton] autorelease];
 	self.navigationItem.rightBarButtonItem = infoButtonItem;
-	
+
 	self.tableView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
 	[self.tableView setScrollEnabled:NO];
-	
+
 	[self refreshDailyTrend];
 	[self refreshWeeklyTrend];
 }
@@ -111,7 +111,7 @@
 {
 	UIGraphicsBeginImageContext(CGSizeMake(120, 30));
 	CGContextRef c = UIGraphicsGetCurrentContext();
-	
+
 	NSSortDescriptor *dateSorter = [[[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO] autorelease];
 	NSArray *sortedDays = [days sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateSorter]];
 	if ([sortedDays count] > 7) {
@@ -128,9 +128,9 @@
 			reportIsLatest = YES;
 		}
 	}
-	
+
 	NSMutableArray *unitSales = [NSMutableArray array];
-	
+
 	int maxUnitSales = 0;
 	for (Day *d in [sortedDays reverseObjectEnumerator]) {
 		float revenue = [d totalRevenueInBaseCurrency];
@@ -138,7 +138,7 @@
 			maxUnitSales = (int)revenue;
 		[unitSales addObject:[NSNumber numberWithFloat:revenue]];
 	}
-	
+
 	//Use number of sales if no revenue was made (e.g. for free apps):
 	if (maxUnitSales == 0) {
 		[unitSales removeAllObjects];
@@ -150,7 +150,7 @@
 			[unitSales addObject:[NSNumber numberWithInt:units]];
 		}
 	}
-	
+
 	[[UIColor grayColor] set];
 	float maxY = 27.0;
 	float minY = 3.0;
@@ -160,7 +160,7 @@
 	float prevX = 0.0;
 	float prevY = 0.0;
 	CGMutablePathRef path = CGPathCreateMutable();
-	
+
 	CGContextBeginPath(c);
 	for (NSNumber *sales in unitSales) {
 		float r = [sales floatValue];
@@ -180,7 +180,7 @@
 		CGContextSetLineWidth(c, 1.0);
 		CGContextSetLineJoin(c, kCGLineJoinRound);
 		CGContextSetLineCap(c, kCGLineCapRound);
-		
+
 		CGMutablePathRef fillPath = CGPathCreateMutableCopy(path);
 		CGPathAddLineToPoint(fillPath, NULL, prevX, maxY);
 		CGPathAddLineToPoint(fillPath, NULL, minX, maxY);
@@ -188,14 +188,14 @@
 		CGContextAddPath(c, fillPath);
 		CGContextFillPath(c);
 		CGPathRelease(fillPath);
-		
+
 		[[UIColor grayColor] set];
 		CGContextAddPath(c, path);
 		CGContextStrokePath(c);
-				
+
 		[[UIColor colorWithRed:0.84 green:0.11 blue:0.06 alpha:1.0] set];
 		CGContextFillEllipseInRect(c, CGRectMake(prevX-2.5, prevY-2.5, 5, 5));
-		
+
 		NSNumber *lastDayUnits = [unitSales lastObject];
 		NSNumber *lastButOneDayUnits = [unitSales objectAtIndex:[unitSales count]-2];
 		float percentage = ([lastDayUnits floatValue] - [lastButOneDayUnits floatValue]) / [lastButOneDayUnits floatValue];
@@ -205,7 +205,7 @@
 		[percentString drawInRect:CGRectMake(80, 7, 40, 15) withFont:[UIFont boldSystemFontOfSize:12.0]];
 	}
 	CGPathRelease(path);
-	
+
 	UIImage *trendImage = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 	return trendImage;
@@ -254,12 +254,12 @@
 }
 
 #pragma mark Table View methods
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     return 3;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
 	if (section == 0)
 		return 3; //daily + weekly + graphs
@@ -267,10 +267,10 @@
 		return 1; //reviews / settings
 }
 
-- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath 
-{    
+- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     static NSString *CellIdentifier = @"Cell";
-    
+
     UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
@@ -303,7 +303,20 @@
     return cell;
 }
 
-- (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+	if (section == 0) {
+		int total = 0;
+		for (Day *day in [[ReportManager sharedManager].days allValues])
+			total += day.totalUnits;
+		return [NSString stringWithFormat:NSLocalizedString(@"Total: %d sales",nil), total];
+	}
+	else {
+		return nil;
+	}
+}
+
+- (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	int row = [indexPath row];
 	int section = [indexPath section];
@@ -317,7 +330,7 @@
 	else if ((row == 1) && (section == 0)) {
 		if (!self.weeksController) {
 			self.weeksController = [[[WeeksController alloc] init] autorelease];
-			weeksController.hidesBottomBarWhenPushed = YES;		
+			weeksController.hidesBottomBarWhenPushed = YES;
 		}
 		[self.navigationController pushViewController:weeksController animated:YES];
 	}
@@ -344,7 +357,7 @@
 	else if ((row == 0) && (section == 2)) {
 		[self.navigationController pushViewController:settingsController animated:YES];
 	}
-	
+
 	[aTableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
