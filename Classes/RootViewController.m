@@ -306,10 +306,8 @@
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
 	if (section == 0) {
-		int total = 0;
-		for (Day *day in [[ReportManager sharedManager].days allValues])
-			total += day.totalUnits;
-		return [NSString stringWithFormat:NSLocalizedString(@"Total: %d sales",nil), total];
+		ReportManager *reportManager = [ReportManager sharedManager];
+		return [NSString stringWithFormat:NSLocalizedString(@"Total: %d sales (%@)",nil), [reportManager totalUnits], [reportManager totalRevenueString]];
 	}
 	else {
 		return nil;

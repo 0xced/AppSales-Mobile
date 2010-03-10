@@ -1051,4 +1051,22 @@
 	[self updateReviewDownloadProgress:@""];
 }
 
+- (int)totalUnits
+{
+	int totalUnits = 0;
+	for (Day *day in [self.days allValues]) {
+		totalUnits += day.totalUnits;
+	}
+	return totalUnits;
+}
+
+- (NSString *)totalRevenueString
+{
+	float totalRevenueInBaseCurrency = 0.0f;
+	for (Day *day in [self.days allValues]) {
+		totalRevenueInBaseCurrency += day.totalRevenueInBaseCurrency;
+	}
+	return [[CurrencyManager sharedManager] baseCurrencyDescriptionForAmount:[NSNumber numberWithFloat:totalRevenueInBaseCurrency] withFraction:NO];
+}
+
 @end
