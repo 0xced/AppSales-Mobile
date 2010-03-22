@@ -557,9 +557,6 @@
 	} else {
 		[days setObject:report forKey:report.date];
 	}
-	Day *day = [[[Day alloc] initWithCSV:text] autorelease];
-	[text release];
-	return day;
 }
 
 #pragma mark -
